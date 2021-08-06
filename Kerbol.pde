@@ -23,7 +23,10 @@ int speedStep = 1;
 
 boolean mainBody = true;
 boolean moons = false;
-boolean custom = false;
+boolean customList = false;
+
+//ui variables
+boolean nameColour = false;
 
 void setup() {
   fullScreen();
@@ -54,8 +57,8 @@ void draw() {
   text("By: EV4", width * 39/40, height-10);
   text("gravity at surface, objects not to scale, free-fall assuming no air resistance", width/2, height-10);
 
-  text(speedStep, width/2, height/2);
-  text(dt, width/2-50, height/2);
+  //text(speedStep, width/2, height/2);
+  //text(dt, width/2-50, height/2);
 
   for (int i = 0; i < planets.size(); i++) {
     fill(planets.get(i).col);
@@ -64,6 +67,10 @@ void draw() {
     textAlign(CENTER);
 
     textSize(25);
+    if(!nameColour) {
+      fill(255);
+      stroke(255);
+    }
     text(planets.get(i).name, (i+1) * width/(planets.size()+1), height * 5/6 + 60 );
 
     if (planets.get(i).pos < 1000) {
@@ -177,7 +184,7 @@ void reloadPlanets(int[] list) {
     planets.add(new planet(0.589, "Bop", color(163, 116, 95)));
     planets.add(new planet(0.373, "Pol", color(186, 165, 117)));
   }
-  if (custom) {
+  if (customList) {
     for (int i = 0; i < allPlanets.size(); i++) {
       if (list[i] == 1) {
         planets.add(allPlanets.get(i));
