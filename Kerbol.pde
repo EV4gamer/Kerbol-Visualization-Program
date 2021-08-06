@@ -19,7 +19,8 @@ ArrayList<planet> planets;
 ArrayList<planet> allPlanets;
 
 float dt = 0.025; //sim speed, higher = faster, lower = more accurate
-int speedIndex = 0;
+int speedStep = 1;
+
 boolean mainBody = true;
 boolean moons = false;
 boolean custom = false;
@@ -53,6 +54,9 @@ void draw() {
   text("By: EV4", width * 39/40, height-10);
   text("gravity at surface, objects not to scale, free-fall assuming no air resistance", width/2, height-10);
 
+  text(speedStep, width/2, height/2);
+  text(dt, width/2-50, height/2);
+
   for (int i = 0; i < planets.size(); i++) {
     fill(planets.get(i).col);
     stroke(planets.get(i).col);
@@ -79,20 +83,19 @@ void draw() {
     stroke(planets.get(i).col);
     ellipse((i+1) * width/(planets.size()+1), height * 1/6 + planets.get(i).pos/1000 * height * (3.0/4.0 - 1.0/6.0), 25, 25);
 
-    
-    for(int j = 0; j < 1; j++){
+
+    for (int j = 0; j < speedStep; j++) {
       //only continue calculations if body hasn't reached the bottom
       if (planets.get(i).pos < 1000) {
         planets.get(i).vel += planets.get(i).grv * dt;
         planets.get(i).tim += dt;
         planets.get(i).pos += planets.get(i).vel * dt;
-  
+
         if (planets.get(i).pos > 1000) {
           planets.get(i).pos = 1000;
         }
       }
     }
-    
   } 
 
   //saveFrame("Frame-####.png");
@@ -102,20 +105,35 @@ void keyPressed() {
   switch(key) {
   case '+':
   case '=':
-    if (dt < 0.25) {
-      dt *= 2;
-      speedIndex += 1;
-    }
+    timeAdd(1);    
     break;    
   case '-':
   case '_':
-    if (dt > 0.005) {
-      dt /= 2;
-      speedIndex -= 1;
-    }
+    timeAdd(-1);
     break;
   }
 }
+
+void timeAdd(int a) {
+  if (dt > 0.02) {
+    if (a > 0) {
+      speedStep += 1;
+    } else {
+      if(speedStep > 1){
+        speedStep -= 1;
+      } else {
+        dt -= 0.005;
+      }
+    }
+  } else {
+    if (a > 0) {
+      dt += 0.005;
+    } else if (dt > 0) {
+      dt -= 0.005;
+    }
+  }
+}
+
 
 void reloadPlanets(int[] list) {
   allPlanets = new ArrayList<planet>();
@@ -160,12 +178,10 @@ void reloadPlanets(int[] list) {
     planets.add(new planet(0.373, "Pol", color(186, 165, 117)));
   }
   if (custom) {
-    for(int i = 0; i < allPlanets.size(); i++){
-      if(list[i] == 1){
+    for (int i = 0; i < allPlanets.size(); i++) {
+      if (list[i] == 1) {
         planets.add(allPlanets.get(i));
       }
-    } 
-    
-    
+    }
   }
 }
