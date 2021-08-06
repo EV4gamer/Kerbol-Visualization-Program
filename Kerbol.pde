@@ -80,7 +80,7 @@ void draw() {
     ellipse((i+1) * width/(planets.size()+1), height * 1/6 + planets.get(i).pos/1000 * height * (3.0/4.0 - 1.0/6.0), 25, 25);
 
     
-    for(int j = 0; i < 1; i++){
+    for(int j = 0; j < 1; j++){
       //only continue calculations if body hasn't reached the bottom
       if (planets.get(i).pos < 1000) {
         planets.get(i).vel += planets.get(i).grv * dt;
