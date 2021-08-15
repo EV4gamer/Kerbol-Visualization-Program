@@ -25,6 +25,8 @@ boolean mainBody = true;
 boolean moons = false;
 boolean customList = false;
 
+boolean paused = false;
+
 //ui variables
 boolean nameColour = false;
 
@@ -39,6 +41,119 @@ void setup() {
 
 
 void draw() { 
+  if (!paused) {
+    background(0);
+    fill(255);
+    stroke(255);
+    line(0, height * 3/4, width, height * 3/4);
+    line(0, height * 1/6, width, height * 1/6);
+    textSize(40);
+    textAlign(CENTER);
+    text("1 Kilometer \"Ball Drop\" On Kerbol System Bodies", width/2, 50);
+
+    textSize(25);
+    text("0km", width * 39/40, height * 3/4 + 30);
+    text("1km", width * 39/40, height * 1/6 - 20);
+    text("t=", 40, height * 1/6 - 80);
+    text("v=", 40, height * 1/6 - 40);
+    textSize(15);
+    text("By: EV4", width * 39/40, height-10);
+    text("gravity at surface, objects not to scale, free-fall assuming no air resistance", width/2, height-10);
+
+    //text(speedStep, width/2, height/2);
+    //text(dt, width/2-50, height/2);
+
+    for (int i = 0; i < planets.size(); i++) {
+      fill(planets.get(i).col);
+      stroke(planets.get(i).col);
+      ellipse((i+1) * width/(planets.size()+1), height * 5/6, 50, 50);
+      textAlign(CENTER);
+
+      textSize(25);
+      if (!nameColour) {
+        fill(255);
+        stroke(255);
+      }
+      text(planets.get(i).name, (i+1) * width/(planets.size()+1), height * 5/6 + 60 );
+
+      if (planets.get(i).pos < 1000) {
+        fill(255);
+      } else {
+        fill(0, 255, 0);
+      }
+      text(nf(planets.get(i).vel, 0, 2) +" m/s", (i+1) * width/(planets.size()+1), height * 1/6 - 40 );
+      text(nf(planets.get(i).tim, 0, 2) +" s", (i+1) * width/(planets.size()+1), height * 1/6 - 80 );
+
+      fill(255);
+      textSize(18);
+      text("Gravity", (i+1) * width/(planets.size()+1), height * 5/6 + 100 );
+      text(planets.get(i).grv + " m/s²", (i+1) * width/(planets.size()+1), height * 5/6 + 120 );    
+
+      fill(planets.get(i).col);
+      stroke(planets.get(i).col);
+      ellipse((i+1) * width/(planets.size()+1), height * 1/6 + planets.get(i).pos/1000 * height * (3.0/4.0 - 1.0/6.0), 25, 25);
+
+
+      for (int j = 0; j < speedStep; j++) {
+        //only continue calculations if body hasn't reached the bottom
+        if (planets.get(i).pos < 1000) {
+          planets.get(i).vel += planets.get(i).grv * dt;
+          planets.get(i).tim += dt;
+          planets.get(i).pos += planets.get(i).vel * dt;
+
+          if (planets.get(i).pos > 1000) {
+            planets.get(i).pos = 1000;
+          }
+        }
+      }
+    } 
+
+    //saveFrame("Frame-####.png");
+  }
+}
+
+void keyPressed() {
+  switch(key) {
+  case 'r':
+  case 'R':
+    reloadPlanets(list);
+    reloadGraphics();
+    break;
+  case ' ':
+    paused = !paused;
+    break;
+  case '+':
+  case '=':
+    timeAdd(1);    
+    break;    
+  case '-':
+  case '_':
+    timeAdd(-1);
+    break;
+  }
+}
+
+void timeAdd(int a) {
+  if (dt > 0.02) {
+    if (a > 0) {
+      speedStep += 1;
+    } else {
+      if (speedStep > 1) {
+        speedStep -= 1;
+      } else {
+        dt -= 0.005;
+      }
+    }
+  } else {
+    if (a > 0) {
+      dt += 0.005;
+    } else if (dt > 0.005) {
+      dt -= 0.005;
+    }
+  }
+}
+
+void reloadGraphics() {
   background(0);
   fill(255);
   stroke(255);
@@ -57,9 +172,6 @@ void draw() {
   text("By: EV4", width * 39/40, height-10);
   text("gravity at surface, objects not to scale, free-fall assuming no air resistance", width/2, height-10);
 
-  //text(speedStep, width/2, height/2);
-  //text(dt, width/2-50, height/2);
-
   for (int i = 0; i < planets.size(); i++) {
     fill(planets.get(i).col);
     stroke(planets.get(i).col);
@@ -67,17 +179,11 @@ void draw() {
     textAlign(CENTER);
 
     textSize(25);
-    if(!nameColour) {
+    if (!nameColour) {
       fill(255);
       stroke(255);
     }
     text(planets.get(i).name, (i+1) * width/(planets.size()+1), height * 5/6 + 60 );
-
-    if (planets.get(i).pos < 1000) {
-      fill(255);
-    } else {
-      fill(0, 255, 0);
-    }
     text(nf(planets.get(i).vel, 0, 2) +" m/s", (i+1) * width/(planets.size()+1), height * 1/6 - 40 );
     text(nf(planets.get(i).tim, 0, 2) +" s", (i+1) * width/(planets.size()+1), height * 1/6 - 80 );
 
@@ -85,59 +191,9 @@ void draw() {
     textSize(18);
     text("Gravity", (i+1) * width/(planets.size()+1), height * 5/6 + 100 );
     text(planets.get(i).grv + " m/s²", (i+1) * width/(planets.size()+1), height * 5/6 + 120 );    
-
     fill(planets.get(i).col);
     stroke(planets.get(i).col);
     ellipse((i+1) * width/(planets.size()+1), height * 1/6 + planets.get(i).pos/1000 * height * (3.0/4.0 - 1.0/6.0), 25, 25);
-
-
-    for (int j = 0; j < speedStep; j++) {
-      //only continue calculations if body hasn't reached the bottom
-      if (planets.get(i).pos < 1000) {
-        planets.get(i).vel += planets.get(i).grv * dt;
-        planets.get(i).tim += dt;
-        planets.get(i).pos += planets.get(i).vel * dt;
-
-        if (planets.get(i).pos > 1000) {
-          planets.get(i).pos = 1000;
-        }
-      }
-    }
-  } 
-
-  //saveFrame("Frame-####.png");
-}
-
-void keyPressed() {
-  switch(key) {
-  case '+':
-  case '=':
-    timeAdd(1);    
-    break;    
-  case '-':
-  case '_':
-    timeAdd(-1);
-    break;
-  }
-}
-
-void timeAdd(int a) {
-  if (dt > 0.02) {
-    if (a > 0) {
-      speedStep += 1;
-    } else {
-      if(speedStep > 1){
-        speedStep -= 1;
-      } else {
-        dt -= 0.005;
-      }
-    }
-  } else {
-    if (a > 0) {
-      dt += 0.005;
-    } else if (dt > 0) {
-      dt -= 0.005;
-    }
   }
 }
 
